@@ -21,9 +21,9 @@
 #endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 
 enum charybdis_keymap_layers {
-    LAYER_BASE = 0,
-    LAYER_LOWER,
-    LAYER_RAISE,
+    BASE = 0,
+    NUMPAD,
+    FUNCTIONS,
     LAYER_POINTER,
 };
 
@@ -42,10 +42,6 @@ static uint16_t auto_pointer_layer_timer = 0;
 #    endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD
 #endif     // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 
-#define LOWER MO(LAYER_LOWER)
-#define RAISE MO(LAYER_RAISE)
-#define PT_Z LT(LAYER_POINTER, KC_Z)
-#define PT_SLSH LT(LAYER_POINTER, KC_SLSH)
 
 #ifndef POINTING_DEVICE_ENABLE
 #    define DRGSCRL KC_NO
@@ -54,65 +50,134 @@ static uint16_t auto_pointer_layer_timer = 0;
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
 
+
+// Define combo key sequences
+enum combo_events {
+    COMBO_F2,
+    COMBO_F3,
+    COMBO_F4,
+    COMBO_CAPS,
+    COMBO_CAPS_WORD,
+    COMBO_AT,
+    COMBO_HASH,
+    COMBO_LBRACKET,
+    COMBO_RBRACKET,
+    COMBO_UNDERSCORE,
+    COMBO_PIPE,
+    COMBO_PLUS,
+    COMBO_EQUALS,
+    COMBO_SQUARE_BRACKET,
+    COMBO_TOGGLE_LAYER1_NM,
+    COMBO_SPACE,
+    COMBO_TOGGLE_LAYER1_SLASH,
+    COMBO_LAYER3,
+    COMBO_HYPER_SPACE,
+};
+
+// Define the key combinations for each combo
+const uint16_t PROGMEM combo_f2[] = {KC_2, KC_3, COMBO_END};
+const uint16_t PROGMEM combo_f3[] = {KC_3, KC_4, COMBO_END};
+const uint16_t PROGMEM combo_f4[] = {KC_4, KC_5, COMBO_END};
+const uint16_t PROGMEM combo_caps[] = {KC_Q, KC_W, COMBO_END};
+const uint16_t PROGMEM combo_caps_word[] = {KC_W, KC_E, COMBO_END};
+const uint16_t PROGMEM combo_at[] = {KC_A, KC_S, COMBO_END};
+const uint16_t PROGMEM combo_hash[] = {KC_S, KC_D, COMBO_END};
+const uint16_t PROGMEM combo_lbracket[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM combo_rbracket[] = {KC_F, KC_G, COMBO_END};
+const uint16_t PROGMEM combo_underscore[] = {KC_C, KC_V, COMBO_END};
+const uint16_t PROGMEM combo_pipe[] = {KC_V, KC_B, COMBO_END};
+const uint16_t PROGMEM combo_plus[] = {KC_9, KC_0, COMBO_END};
+const uint16_t PROGMEM combo_equals[] = {KC_0, KC_MINUS, COMBO_END};
+const uint16_t PROGMEM combo_square_bracket[] = {KC_P, KC_RBRC, COMBO_END};
+const uint16_t PROGMEM combo_toggle_layer1_nm[] = {KC_N, KC_M, COMBO_END};
+const uint16_t PROGMEM combo_space[] = {KC_M, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM combo_toggle_layer1_slash[] = {KC_SLASH, SC_SENT, COMBO_END};
+const uint16_t PROGMEM combo_layer3[] = {RGUI_T(KC_BSPC), HYPR_T(KC_DEL), COMBO_END};
+const uint16_t PROGMEM combo_hyper_space[] = {KC_J, KC_K, COMBO_END};
+
+// Map combos to their key sequences and result keys
+combo_t key_combos[COMBO_COUNT] = {
+    [COMBO_F2] = COMBO(combo_f2, KC_F2),
+    [COMBO_F3] = COMBO(combo_f3, KC_F3),
+    [COMBO_F4] = COMBO(combo_f4, KC_F4),
+    [COMBO_CAPS] = COMBO(combo_caps, KC_CAPS),
+    [COMBO_CAPS_WORD] = COMBO(combo_caps_word, 0x7c73),
+    [COMBO_AT] = COMBO(combo_at, LALT(KC_2)),
+    [COMBO_HASH] = COMBO(combo_hash, LALT(KC_3)),
+    [COMBO_LBRACKET] = COMBO(combo_lbracket, LALT(KC_8)),
+    [COMBO_RBRACKET] = COMBO(combo_rbracket, LALT(KC_9)),
+    [COMBO_UNDERSCORE] = COMBO(combo_underscore, KC_INT1),
+    [COMBO_PIPE] = COMBO(combo_pipe, LSFT(KC_INT1)),
+    [COMBO_PLUS] = COMBO(combo_plus, LSFT(KC_EQUAL)),
+    [COMBO_EQUALS] = COMBO(combo_equals, KC_EQUAL),
+    [COMBO_SQUARE_BRACKET] = COMBO(combo_square_bracket, KC_LBRC),
+    [COMBO_TOGGLE_LAYER1_NM] = COMBO(combo_toggle_layer1_nm, TG(1)),
+    [COMBO_SPACE] = COMBO(combo_space, KC_SPACE),
+    [COMBO_TOGGLE_LAYER1_SLASH] = COMBO(combo_toggle_layer1_slash, TG(1)),
+    [COMBO_LAYER3] = COMBO(combo_layer3, MO(3)),  // Assuming momentary layer 3
+    [COMBO_HYPER_SPACE] = COMBO(combo_hyper_space, HYPR(KC_SPACE)),
+};
+
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [LAYER_BASE] = LAYOUT(
+  [BASE] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
         KC_ESC,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, KC_MINS,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-        KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, KC_BSLS,
+        KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, KC_RBRC,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       KC_LSFT,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,       KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
+       KC_LALT,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,       KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       KC_LCTL,    PT_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, PT_SLSH, KC_LALT,
+       KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, SC_SENT,
   // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                   KC_LGUI, KC_SPC,   LOWER,      RAISE,  KC_ENT,
-                                           KC_LALT, KC_BSPC,     KC_DEL
+                HYPR_T(KC_NO), LGUI_T(KC_SPC), LT(2,KC_ENT),   RGUI_T(KC_BSPC), LT(2,KC_NO),
+                             LT(3,KC_LEFT), LCTL_T(KC_RGHT),   HYPR_T(KC_DEL)
+  //                        ╰─----──────────────────────────╯ ╰────────────────╯
+  ),
+
+  [NUMPAD] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
+       KC_NUBS,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   LALT(KC_3), KC_INT1, LSFT(KC_8), LSFT(KC_9), LSFT(KC_INT1), KC_EQL,
+  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
+        KC_TAB,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   LSFT(KC_7),  KC_7,  KC_8,  KC_9,  KC_COMM,  KC_LBRC,
+  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
+       KC_LALT, KC_F11, KC_F12, LALT(KC_0), LALT(KC_8), LALT(KC_9), LSFT(KC_EQL), KC_4, KC_5, KC_6, KC_DOT, KC_NUHS,
+  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
+       KC_LSFT, KC_MINS, LSFT(KC_2), LSFT(KC_3), LSFT(KC_4), LSFT(KC_5), KC_0, KC_1, KC_2, KC_3, KC_SLSH, SC_SENT, 
+  // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
+                              HYPR_T(KC_NO), KC_LGUI, KC_ENT,  KC_BSPC, KC_SPC,
+                                          KC_LALT, KC_LCTL,     RSFT(KC_0)
   //                            ╰───────────────────────────╯ ╰──────────────────╯
   ),
 
-  [LAYER_LOWER] = LAYOUT(
+  [FUNCTIONS] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-       KC_TILD, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,    KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_UNDS,
+        KC_NO,   KC_NO,  KC_MPLY,  KC_MPRV,  KC_MNXT, KC_NO,    KC_1, KC_2, KC_3, KC_4, KC_5, RGUI(KC_BSPC),
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       RGB_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC,   KC_P7,   KC_P8,   KC_P9, KC_RBRC, XXXXXXX,
+       KC_TAB, KC_NO, LGUI(KC_W), KC_BRID, KC_BRIU, LGUI(KC_T), RGUI(KC_T), RCS(KC_UP), KC_UP, RGUI(KC_O), RCS(KC_LEFT), KC_DEL,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       RGB_TOG, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,    KC_PPLS,   KC_P4,   KC_P5,   KC_P6, KC_PMNS, KC_PEQL,
+       KC_LALT,  KC_NO,  KC_MUTE,  KC_VOLD,  KC_VOLU, KC_NO,    HYPR(KC_H), KC_LEFT, KC_DOWN, KC_RGHT, KC_RALT, KC_RGUI,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-      RGB_RMOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_PAST,   KC_P1,   KC_P2,   KC_P3, KC_PSLS, KC_PDOT,
+       KC_LSFT, LGUI(KC_Z), LGUI(KC_X), LGUI(KC_C), LGUI(KC_V), LGUI(KC_B), RGUI(KC_W), KC_SPC, RGUI(KC_C), RGUI(KC_V), RGUI(KC_Z), KC_RSFT,
   // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                  XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______,
-                                           XXXXXXX, XXXXXXX,      KC_P0
-  //                            ╰───────────────────────────╯ ╰──────────────────╯
-  ),
-
-  [LAYER_RAISE] = LAYOUT(
-  // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-        KC_F12,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,
-  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       KC_MNXT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU,
-  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       KC_MPLY, KC_LEFT,   KC_UP, KC_DOWN, KC_RGHT, XXXXXXX,    XXXXXXX, KC_RSFT, KC_RCTL, KC_RALT, KC_RGUI, KC_MUTE,
-  // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       KC_MPRV, KC_HOME, KC_PGUP, KC_PGDN,  KC_END, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD,
-  // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                  _______, _______, XXXXXXX,    _______, XXXXXXX,
-                                           _______, _______,    XXXXXXX
+                             HYPR_T(KC_NO), KC_LGUI, KC_ENT,    KC_BSPC, RGUI(KC_SPC),
+                                         KC_LALT, MEH(KC_Q),    KC_TAB
   //                            ╰───────────────────────────╯ ╰──────────────────╯
   ),
 
   [LAYER_POINTER] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-       QK_BOOT,  EE_CLR, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, QK_BOOT,  EE_CLR,
+        KC_NO, S_D_MOD, DPI_MOD, KC_NO, KC_NO, KC_NO, RCS(KC_1), RCS(KC_2), RCS(KC_3), RCS(KC_4), RCS(KC_5), RCS(KC_6),
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DPI_MOD, S_D_MOD,    S_D_MOD, DPI_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+       RM_ON, RM_NEXT, RM_HUEU, RM_SATU, RM_VALU, RM_SPDU, KC_NO, RCS(KC_W), RCS(KC_E), RCS(KC_R), RCS(KC_T), RCS(KC_Y),
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       XXXXXXX, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,    XXXXXXX, KC_RSFT, KC_RCTL, KC_RALT, KC_RGUI, XXXXXXX,
+       RM_TOGG, SNIPING, DRGSCRL, MS_BTN1, MS_BTN3, MS_BTN2, RCS(KC_A), RCS(KC_S), RCS(KC_D), RCS(KC_F), RCS(KC_G), RCS(KC_H),
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       XXXXXXX, _______, DRGSCRL, SNIPING, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, SNIPING, DRGSCRL, _______, XXXXXXX,
+       RM_OFF, RM_PREV, RM_HUED, RM_SATD, RM_VALD, RM_SPDD, RCS(KC_Z), RCS(KC_X), RCS(KC_C), RCS(KC_V), RCS(KC_B), RCS(KC_N),
   // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                  KC_BTN2, KC_BTN1, KC_BTN3,    KC_BTN3, KC_BTN1,
-                                           XXXXXXX, KC_BTN2,    KC_BTN2
+                                 MS_BTN4, MS_BTN5, MS_BTN6,     MS_BTN2, MS_BTN1,
+                                          KC_NO, MS_BTN7,       MS_BTN3
   //                            ╰───────────────────────────╯ ╰──────────────────╯
   ),
 };
